@@ -2,18 +2,25 @@
 
 
 #include "Game/ABGameMode.h"
+#include "ABGameMode.h"
 
 AABGameMode::AABGameMode()
 {
-	// static을 씀으로써 캐싱도 되고 생성자가 호출될때마다 해당 함수가 호출되는 게 아니라서 권장
+	//static ConstructorHelpers::FClassFinder<APawn> ThirdPersonClassRef(TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.BP_ThirdPersonCharacter_C"));
+	//if (ThirdPersonClassRef.Class)
+	//{
+	//	DefaultPawnClass = ThirdPersonClassRef.Class;
+	//}
+	// DefaultPawnClass
+
 	static ConstructorHelpers::FClassFinder<APawn> DefaultPawnClassRef(TEXT("/Script/ArenaBattle.ABCharacterPlayer"));
-	if (DefaultPawnClassRef.Class != nullptr)
+	if (DefaultPawnClassRef.Class)
 	{
 		DefaultPawnClass = DefaultPawnClassRef.Class;
-	}	
-	
+	}
+
 	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerClassRef(TEXT("/Script/ArenaBattle.ABPlayerController"));
-	if (PlayerControllerClassRef.Class != nullptr)
+	if (PlayerControllerClassRef.Class)
 	{
 		PlayerControllerClass = PlayerControllerClassRef.Class;
 	}

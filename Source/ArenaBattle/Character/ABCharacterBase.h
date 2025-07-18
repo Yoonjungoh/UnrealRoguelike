@@ -14,4 +14,5 @@ class ARENABATTLE_API AABCharacterBase : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AABCharacterBase();
+
 };

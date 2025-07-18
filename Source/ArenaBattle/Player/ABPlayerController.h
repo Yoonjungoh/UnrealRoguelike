@@ -14,6 +14,7 @@ class ARENABATTLE_API AABPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
-public:
+protected:
 	virtual void BeginPlay() override;
+	
 };
