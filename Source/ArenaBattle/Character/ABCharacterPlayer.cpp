@@ -70,7 +70,7 @@ void AABCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* Player
 
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-	EnhancedInputComponent->BindAction(ChangeControlAction, ETriggerEvent::Completed, this, &AABCharacterPlayer::ChangeCharacterControl);
+	EnhancedInputComponent->BindAction(ChangeControlAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ChangeCharacterControl);
 	EnhancedInputComponent->BindAction(ShoulderMoveAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderMove);
 	EnhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderLook);
 	EnhancedInputComponent->BindAction(QuaterMoveAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::QuaterMove);
@@ -82,11 +82,11 @@ void AABCharacterPlayer::ChangeCharacterControl()
 	// V키 입력으로 시점 변경 해줌
 	if (CurrentCharacterControlType == ECharacterControlType::Quater)
 	{
-		SetCharacterControl(ECharacterControlType::Quater);
+		SetCharacterControl(ECharacterControlType::Shoulder);
 	}
 	else if (CurrentCharacterControlType == ECharacterControlType::Shoulder)
 	{
-		SetCharacterControl(ECharacterControlType::Shoulder);
+		SetCharacterControl(ECharacterControlType::Quater);
 	}
 }
 
@@ -95,7 +95,7 @@ void AABCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterC
 	// 실제 변경
 	UABCharacterControlData* NewCharacterControl = CharacterControlManager[NewCharacterControlType];
 	check(NewCharacterControl);	// 0 또는 nullptr이면 강제 종료시키기
-
+	
 	SetCharacterControlData(NewCharacterControl);
 
 	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
@@ -150,5 +150,22 @@ void AABCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
 void AABCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
+	
+	float InputSizeSquared = MovementVector.SquaredLength();
+	float MovementVectorSize = 1.0f;
+	float MovementVectorSizeSquared = MovementVector.SquaredLength();
+	if (MovementVectorSizeSquared > 1.0f)
+	{
+		MovementVector.Normalize();
+		MovementVectorSizeSquared = 1.0f;
+	}
+	else
+	{
+		MovementVectorSize = FMath::Sqrt(MovementVectorSizeSquared);
+	}
 
+	// Modifiers로 X,Y 값을 Swizzle로 변경해놨어서 그대로 사용하면 됨
+	FVector MoveDirection = FVector(MovementVector.X, MovementVector.Y, 0.0f);
+	GetController()->SetControlRotation(FRotationMatrix::MakeFromX(MoveDirection).Rotator());
+	AddMovementInput(MoveDirection, MovementVectorSize);
 }
