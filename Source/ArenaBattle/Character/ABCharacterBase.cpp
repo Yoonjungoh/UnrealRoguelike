@@ -7,6 +7,7 @@
 #include "ABCharacterControlData.h"
 #include "Animation/AnimMontage.h"
 #include "ABComboActionData.h"
+#include "Physics/ABCollision.h"
 
 // Sets default values
 AABCharacterBase::AABCharacterBase()
@@ -143,6 +144,12 @@ void AABCharacterBase::ComboCheck()
 		SetComboCheckTimer();
 		HasNextComboCommand = false;
 	}
+}
+
+void AABCharacterBase::AttackHitCheck()
+{
+	// 트레이스 채널 활용해서 물체가 서로 충돌하는지 판단
+
 }
 
 
