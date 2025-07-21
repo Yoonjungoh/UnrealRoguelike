@@ -80,7 +80,7 @@ void AABCharacterBase::ProcessComboCommand()
 
 	if (!ComboTimerHandle.IsValid())
 	{
-		HasNextComboCommand = false;
+		HasNextComboCommand = false;	// 진행할 필요 없음
 	}
 	else
 	{
@@ -94,8 +94,8 @@ void AABCharacterBase::ComboActionBegin()
 	CurrentCombo = 1;
 
 	// Movement Setting
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);	// MOVE_None이면 이동 기능이 없어짐
+	
 	// Animation Setting
 	const float AttackSpeedRate = 1.0f;
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -111,7 +111,7 @@ void AABCharacterBase::ComboActionBegin()
 
 void AABCharacterBase::ComboActionEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
 {
-	ensure(CurrentCombo != 0);
+	ensure(CurrentCombo != 0);	// 크래시는 안 내지만 로그는 남기고 실행은 계속시킴
 	CurrentCombo = 0;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
@@ -131,12 +131,13 @@ void AABCharacterBase::SetComboCheckTimer()
 
 void AABCharacterBase::ComboCheck()
 {
-	ComboTimerHandle.Invalidate();
+	ComboTimerHandle.Invalidate();	// 타이머 발동됐으면 더 이상 발동되면 안 되니까 초기화 시켜주기
 	if (HasNextComboCommand)
 	{
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 		CurrentCombo = FMath::Clamp(CurrentCombo + 1, 1, ComboActionData->MaxComboCount);
+		// 몽타주 섹션 이름 파싱
 		FName NextSection = *FString::Printf(TEXT("%s%d"), *ComboActionData->MontageSectionNamePrefix, CurrentCombo);
 		AnimInstance->Montage_JumpToSection(NextSection, ComboActionMontage);
 		SetComboCheckTimer();
