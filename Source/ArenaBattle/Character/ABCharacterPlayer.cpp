@@ -52,6 +52,12 @@ AABCharacterPlayer::AABCharacterPlayer()
 		QuaterMoveAction = InputActionQuaterMoveRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionAttackRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_Attack.IA_Attack'"));
+	if (nullptr != InputActionAttackRef.Object)
+	{
+		AttackAction = InputActionAttackRef.Object;
+	}
+
 	CurrentCharacterControlType = ECharacterControlType::Quater;
 }
 
@@ -74,12 +80,11 @@ void AABCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* Player
 	EnhancedInputComponent->BindAction(ShoulderMoveAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderMove);
 	EnhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderLook);
 	EnhancedInputComponent->BindAction(QuaterMoveAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::QuaterMove);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Attack);
 }
-
 
 void AABCharacterPlayer::ChangeCharacterControl()
 {
-	// V키 입력으로 시점 변경 해줌
 	if (CurrentCharacterControlType == ECharacterControlType::Quater)
 	{
 		SetCharacterControl(ECharacterControlType::Shoulder);
@@ -92,20 +97,19 @@ void AABCharacterPlayer::ChangeCharacterControl()
 
 void AABCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterControlType)
 {
-	// 실제 변경
 	UABCharacterControlData* NewCharacterControl = CharacterControlManager[NewCharacterControlType];
-	check(NewCharacterControl);	// 0 또는 nullptr이면 강제 종료시키기
-	
+	check(NewCharacterControl);
+
 	SetCharacterControlData(NewCharacterControl);
 
 	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
-		Subsystem->ClearAllMappings();	// 모든 인풋 매핑 제거
-		UInputMappingContext* NewInputMappingContext = NewCharacterControl->InputMappingContext;
-		if (NewCharacterControl)
+		Subsystem->ClearAllMappings();
+		UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
+		if (NewMappingContext)
 		{
-			Subsystem->AddMappingContext(NewInputMappingContext, 0);
+			Subsystem->AddMappingContext(NewMappingContext, 0);
 		}
 	}
 
@@ -150,7 +154,7 @@ void AABCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
 void AABCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
-	
+
 	float InputSizeSquared = MovementVector.SquaredLength();
 	float MovementVectorSize = 1.0f;
 	float MovementVectorSizeSquared = MovementVector.SquaredLength();
@@ -164,8 +168,12 @@ void AABCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 		MovementVectorSize = FMath::Sqrt(MovementVectorSizeSquared);
 	}
 
-	// Modifiers로 X,Y 값을 Swizzle로 변경해놨어서 그대로 사용하면 됨
 	FVector MoveDirection = FVector(MovementVector.X, MovementVector.Y, 0.0f);
 	GetController()->SetControlRotation(FRotationMatrix::MakeFromX(MoveDirection).Rotator());
 	AddMovementInput(MoveDirection, MovementVectorSize);
+}
+
+void AABCharacterPlayer::Attack()
+{
+	ProcessComboCommand();
 }

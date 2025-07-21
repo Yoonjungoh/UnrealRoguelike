@@ -29,8 +29,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = CharacterMovement)
 	FRotator RotationRate;
 
-	// 앞으로 사용할 입력 매핑 컨텍스트 담을 멤버 변수
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterMovement)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<class UInputMappingContext> InputMappingContext;
 
 	UPROPERTY(EditAnywhere, Category = SpringArm)
@@ -53,4 +52,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = SpringArm)
 	uint32 bDoCollisionTest : 1;
+
+	
 };
