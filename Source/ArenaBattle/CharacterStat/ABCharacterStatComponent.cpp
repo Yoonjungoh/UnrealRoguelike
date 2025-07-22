@@ -6,7 +6,8 @@
 // Sets default values for this component's properties
 UABCharacterStatComponent::UABCharacterStatComponent()
 {
-	SetMaxHp(200.0f);
+	const float CharacterMaxHp = 200.0f;
+	SetMaxHp(CharacterMaxHp);
 	SetCurrentHp(GetMaxHp());
 }
 
