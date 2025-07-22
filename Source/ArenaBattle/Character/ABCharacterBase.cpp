@@ -9,6 +9,8 @@
 #include "ABComboActionData.h"
 #include "Physics/ABCollision.h"
 #include "Engine/DamageEvents.h"
+#include "CharacterStat/ABCharacterStatComponent.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 AABCharacterBase::AABCharacterBase()
@@ -76,6 +78,24 @@ AABCharacterBase::AABCharacterBase()
 	if (DeadMontageRef.Object)
 	{
 		DeadMontage = DeadMontageRef.Object;
+	}
+
+	// Stat Component
+	Stat = CreateDefaultSubobject<UABCharacterStatComponent>(TEXT("Stat"));
+	
+	// Widget Component
+	HpBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HpBar"));
+	// 캐릭터 머리 위로 갈 수 있도록 작업해주기 (트랜스폼 가짐)
+	HpBar->SetupAttachment(GetMesh());
+	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/ArenaBattle/UI/WBP_HpBar.WBP_HpBar_C'"));
+	if (HpBarWidgetRef.Class)
+	{
+		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
+		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+		HpBar->SetDrawSize(FVector2D(150.0f, 15.0f));
+		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		
 	}
 }
 
