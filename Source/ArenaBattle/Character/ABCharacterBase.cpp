@@ -10,7 +10,8 @@
 #include "Physics/ABCollision.h"
 #include "Engine/DamageEvents.h"
 #include "CharacterStat/ABCharacterStatComponent.h"
-#include "Components/WidgetComponent.h"
+#include "UI/ABWidgetComponent.h"
+#include "UI/ABHpBarWidget.h"
 
 // Sets default values
 AABCharacterBase::AABCharacterBase()
@@ -84,7 +85,7 @@ AABCharacterBase::AABCharacterBase()
 	Stat = CreateDefaultSubobject<UABCharacterStatComponent>(TEXT("Stat"));
 	
 	// Widget Component
-	HpBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HpBar"));
+	HpBar = CreateDefaultSubobject<UABWidgetComponent>(TEXT("HpBar"));
 	// 캐릭터 머리 위로 갈 수 있도록 작업해주기 (트랜스폼 가짐)
 	HpBar->SetupAttachment(GetMesh());
 	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
@@ -97,6 +98,15 @@ AABCharacterBase::AABCharacterBase()
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		
 	}
+}
+
+void AABCharacterBase::PostInitializeComponents()
+{
+	// 생성자에서 미리 바인딩 하거나 BeginPlay에서 구현해도 상관은 없음
+	// 한 번 써보고 싶어서 사용함
+	Super::PostInitializeComponents();
+
+	Stat->OnHpZero.AddUObject(this, &AABCharacterBase::SetDead);
 }
 
 void AABCharacterBase::SetCharacterControlData(const UABCharacterControlData* CharacterControlData)
@@ -218,7 +228,7 @@ float AABCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	SetDead();
+	Stat->ApplyDamage(DamageAmount);
 
 	return DamageAmount;
 }
@@ -228,6 +238,7 @@ void AABCharacterBase::SetDead()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	PlayDeadAnimation();
 	SetActorEnableCollision(false);	// 죽은 캐릭터가 더이상 콜리전의 영향을 안 받게 됨
+	HpBar->SetHiddenInGame(true);
 }
 
 void AABCharacterBase::PlayDeadAnimation()
@@ -235,6 +246,18 @@ void AABCharacterBase::PlayDeadAnimation()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	AnimInstance->StopAllMontages(0.0f);
 	AnimInstance->Montage_Play(DeadMontage, 1.0f);
+}
+
+void AABCharacterBase::SetupCharacterWidget(UABUserWidget* InUserWidget)
+{
+	UABHpBarWidget* HpBarWidget = Cast<UABHpBarWidget>(InUserWidget);
+	if (HpBarWidget)
+	{
+		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
+		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
+
+		Stat->OnHpChanged.AddUObject(HpBarWidget, &UABHpBarWidget::UpdateHpBar);
+	}
 }
 
 
