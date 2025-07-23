@@ -14,7 +14,6 @@ void UABHpBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	// HpProgressBar Ã£±â
 	HpProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PbHpBar")));
 	ensure(HpProgressBar);
 

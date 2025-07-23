@@ -6,9 +6,8 @@
 // Sets default values for this component's properties
 UABCharacterStatComponent::UABCharacterStatComponent()
 {
-	const float CharacterMaxHp = 200.0f;
-	SetMaxHp(CharacterMaxHp);
-	SetCurrentHp(GetMaxHp());
+	MaxHp = 200.0f;
+	CurrentHp = MaxHp;
 }
 
 
@@ -16,28 +15,28 @@ UABCharacterStatComponent::UABCharacterStatComponent()
 void UABCharacterStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	SetCurrentHp(GetMaxHp());
+
+	SetHp(MaxHp);	
 }
 
-void UABCharacterStatComponent::SetCurrentHp(float NewHp)
+float UABCharacterStatComponent::ApplyDamage(float InDamage)
 {
-	CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, MaxHp);
+	const float PrevHp = CurrentHp;
+	const float ActualDamage = FMath::Clamp<float>(InDamage, 0, InDamage);
 
-	OnHpChanged.Broadcast(GetCurrentHp());
-}
-
-float UABCharacterStatComponent::ApplyDamage(float InDamge)
-{
-	const float PrevHp = GetCurrentHp();
-	const float ActualDamage = FMath::Clamp<float>(InDamge, 0.0f, InDamge);
-
-	SetCurrentHp(PrevHp - ActualDamage);
-	if (GetCurrentHp() <= KINDA_SMALL_NUMBER)
+	SetHp(PrevHp - ActualDamage);
+	if (CurrentHp <= KINDA_SMALL_NUMBER)
 	{
 		OnHpZero.Broadcast();
 	}
 
 	return ActualDamage;
+}
+
+void UABCharacterStatComponent::SetHp(float NewHp)
+{
+	CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, MaxHp);
+	
+	OnHpChanged.Broadcast(CurrentHp);
 }
 

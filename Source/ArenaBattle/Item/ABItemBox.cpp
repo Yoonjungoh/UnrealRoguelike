@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Physics/ABCollision.h"
+#include "Interface/ABCharacterItemInterface.h"
 
 // Sets default values
 AABItemBox::AABItemBox()
@@ -19,8 +20,7 @@ AABItemBox::AABItemBox()
 	Effect->SetupAttachment(Trigger);
 
 	Trigger->SetCollisionProfileName(CPROFILE_ABTRIGGER);
-	Trigger->SetBoxExtent(FVector(40.0f,42.0f,30.0f));	// 박스 사이즈
-	// 아래의 델리게이트 바인딩을 통해서 트리거가 발동되면서 매핑된 함수가 실행됨
+	Trigger->SetBoxExtent(FVector(40.0f, 42.0f, 30.0f));
 	Trigger->OnComponentBeginOverlap.AddDynamic(this, &AABItemBox::OnOverlapBegin);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BoxMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/ArenaBattle/Environment/Props/SM_Env_Breakables_Box1.SM_Env_Breakables_Box1'"));
@@ -35,17 +35,27 @@ AABItemBox::AABItemBox()
 	if (EffectRef.Object)
 	{
 		Effect->SetTemplate(EffectRef.Object);
-		Effect->bAutoActivate = false;	// 처음에 바로 발동하는 것을 방지
+		Effect->bAutoActivate = false;
 	}
-
 }
 
 void AABItemBox::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult)
 {
+	if (nullptr == Item)
+	{
+		Destroy();
+		return;
+	}
+
+	IABCharacterItemInterface* OverlappingPawn = Cast<IABCharacterItemInterface>(OtherActor);
+	if (OverlappingPawn)
+	{
+		OverlappingPawn->TakeItem(Item);
+	}
+
 	Effect->Activate(true);
 	Mesh->SetHiddenInGame(true);
 	SetActorEnableCollision(false);
-	// 이펙트 끝났을 때, 호출하는 함수 매핑
 	Effect->OnSystemFinished.AddDynamic(this, &AABItemBox::OnEffectFinished);
 }
 

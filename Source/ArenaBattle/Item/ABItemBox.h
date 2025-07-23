@@ -25,9 +25,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Effect)
 	TObjectPtr<class UParticleSystemComponent> Effect;
 
-	UFUNCTION()	// 블루프린트에서도 사용할 수 있게 다이나믹 델리게이트로 설정돼 있어서 UFUNCTION 지정해줘야 함
+	UPROPERTY(EditAnywhere, Category = Item)
+	TObjectPtr<class UABItemData> Item;
+
+	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult);
 
 	UFUNCTION()
-		void OnEffectFinished(class UParticleSystemComponent* ParticleSystem);
+	void OnEffectFinished(class UParticleSystemComponent* ParticleSystem);
 };

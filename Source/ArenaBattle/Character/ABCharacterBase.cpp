@@ -12,6 +12,9 @@
 #include "CharacterStat/ABCharacterStatComponent.h"
 #include "UI/ABWidgetComponent.h"
 #include "UI/ABHpBarWidget.h"
+#include "Item/ABWeaponItemData.h"
+
+DEFINE_LOG_CATEGORY(LogABCharacter);
 
 // Sets default values
 AABCharacterBase::AABCharacterBase()
@@ -81,29 +84,34 @@ AABCharacterBase::AABCharacterBase()
 		DeadMontage = DeadMontageRef.Object;
 	}
 
-	// Stat Component
+	// Stat Component 
 	Stat = CreateDefaultSubobject<UABCharacterStatComponent>(TEXT("Stat"));
-	
-	// Widget Component
-	HpBar = CreateDefaultSubobject<UABWidgetComponent>(TEXT("HpBar"));
-	// 캐릭터 머리 위로 갈 수 있도록 작업해주기 (트랜스폼 가짐)
+
+	// Widget Component 
+	HpBar = CreateDefaultSubobject<UABWidgetComponent>(TEXT("Widget"));
 	HpBar->SetupAttachment(GetMesh());
 	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
-	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/ArenaBattle/UI/WBP_HpBar.WBP_HpBar_C'"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/ArenaBattle/UI/WBP_HpBar.WBP_HpBar_C"));
 	if (HpBarWidgetRef.Class)
 	{
 		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
 		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
 		HpBar->SetDrawSize(FVector2D(150.0f, 15.0f));
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		
 	}
+
+	// Item Actions
+	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AABCharacterBase::EquipWeapon)));
+	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AABCharacterBase::DrinkPotion)));
+	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AABCharacterBase::ReadScroll)));
+
+	// Weapon Component
+	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
+	Weapon->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
 }
 
 void AABCharacterBase::PostInitializeComponents()
 {
-	// 생성자에서 미리 바인딩 하거나 BeginPlay에서 구현해도 상관은 없음
-	// 한 번 써보고 싶어서 사용함
 	Super::PostInitializeComponents();
 
 	Stat->OnHpZero.AddUObject(this, &AABCharacterBase::SetDead);
@@ -197,7 +205,6 @@ void AABCharacterBase::ComboCheck()
 void AABCharacterBase::AttackHitCheck()
 {
 	FHitResult OutHitResult;
-	// Attack 태그로 언리얼에서 제공하는 분석 툴 사용 가능
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 
 	const float AttackRange = 40.0f;
@@ -205,7 +212,7 @@ void AABCharacterBase::AttackHitCheck()
 	const float AttackDamage = 30.0f;
 	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector End = Start + GetActorForwardVector() * AttackRange;
-	// 이러면 공격 범위가 캡슐 눕힌 곳의 영역으로 지정됨
+
 	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_ABACTION, FCollisionShape::MakeSphere(AttackRadius), Params);
 	if (HitDetected)
 	{
@@ -237,7 +244,7 @@ void AABCharacterBase::SetDead()
 {
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	PlayDeadAnimation();
-	SetActorEnableCollision(false);	// 죽은 캐릭터가 더이상 콜리전의 영향을 안 받게 됨
+	SetActorEnableCollision(false);
 	HpBar->SetHiddenInGame(true);
 }
 
@@ -255,9 +262,39 @@ void AABCharacterBase::SetupCharacterWidget(UABUserWidget* InUserWidget)
 	{
 		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
 		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
-
 		Stat->OnHpChanged.AddUObject(HpBarWidget, &UABHpBarWidget::UpdateHpBar);
 	}
+}
+
+void AABCharacterBase::TakeItem(UABItemData* InItemData)
+{
+	if (InItemData)
+	{
+		TakeItemActions[(uint8)InItemData->Type].ItemDelegate.ExecuteIfBound(InItemData);
+	}
+}
+
+void AABCharacterBase::DrinkPotion(UABItemData* InItemData)
+{
+	UE_LOG(LogABCharacter, Log, TEXT("Drink Potion"));
+}
+
+void AABCharacterBase::EquipWeapon(UABItemData* InItemData)
+{
+	UABWeaponItemData* WeaponItemData = Cast<UABWeaponItemData>(InItemData);
+	if (WeaponItemData)
+	{
+		if (WeaponItemData->WeaponMesh.IsPending())
+		{
+			WeaponItemData->WeaponMesh.LoadSynchronous();
+		}
+		Weapon->SetSkeletalMesh(WeaponItemData->WeaponMesh.Get());
+	}
+}
+
+void AABCharacterBase::ReadScroll(UABItemData* InItemData)
+{
+	UE_LOG(LogABCharacter, Log, TEXT("Read Scroll"));
 }
 
 
