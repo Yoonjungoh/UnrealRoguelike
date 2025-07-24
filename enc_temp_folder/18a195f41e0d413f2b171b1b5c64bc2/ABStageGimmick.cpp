@@ -108,12 +108,10 @@ void AABStageGimmick::OnGateTriggerBeginOverlap(UPrimitiveComponent* OverlappedC
 
 	if (!bResult)
 	{
-		FTransform NewTransform(NewLocation);
-		AABStageGimmick* NewGimmik = GetWorld()->SpawnActorDeferred<AABStageGimmick>(AABStageGimmick::StaticClass(), NewTransform);
+		AABStageGimmick* NewGimmik = GetWorld()->SpawnActor<AABStageGimmick>(NewLocation, FRotator::ZeroRotator);
 		if (NewGimmik)
 		{
 			NewGimmik->SetStageNum(GetStageNum() + 1);
-			NewGimmik->FinishSpawning(NewTransform);
 		}
 	}
 }

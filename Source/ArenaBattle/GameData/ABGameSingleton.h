@@ -23,7 +23,7 @@ public:
 
 // Character Stat Data Section
 public:
-	FORCEINLINE FABCharacterStat GetCharacterStatTable(int32 InLevel) const { return CharacterStatTable.IsValidIndex(InLevel) ? CharacterStatTable[InLevel] : FABCharacterStat(); }
+	FORCEINLINE FABCharacterStat GetCharacterStatTable(int32 InLevel) const { return CharacterStatTable.IsValidIndex(InLevel - 1) ? CharacterStatTable[InLevel - 1] : FABCharacterStat(); }
 
 	UPROPERTY()
 	int32 CharacterMaxLevel;
