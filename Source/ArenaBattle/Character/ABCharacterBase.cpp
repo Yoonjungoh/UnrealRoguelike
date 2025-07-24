@@ -284,9 +284,9 @@ void AABCharacterBase::EquipWeapon(UABItemData* InItemData)
 	UABWeaponItemData* WeaponItemData = Cast<UABWeaponItemData>(InItemData);
 	if (WeaponItemData)
 	{
-		if (WeaponItemData->WeaponMesh.IsPending())	// 로딩이 안 된 상황이라면
+		if (WeaponItemData->WeaponMesh.IsPending())
 		{
-			WeaponItemData->WeaponMesh.LoadSynchronous();	// 동기적으로 로딩을 시키자
+			WeaponItemData->WeaponMesh.LoadSynchronous();
 		}
 		Weapon->SetSkeletalMesh(WeaponItemData->WeaponMesh.Get());
 	}

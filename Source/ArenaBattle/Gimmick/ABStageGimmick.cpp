@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Gimmik/ABStageGimmik.h"
+#include "Gimmick/ABStageGimmick.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Physics/ABCollision.h"
@@ -9,8 +9,9 @@
 #include "Item/ABItemBox.h"
 
 // Sets default values
-AABStageGimmik::AABStageGimmik()
+AABStageGimmick::AABStageGimmick()
 {
+	// Stage Section
 	Stage = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Stage"));
 	RootComponent = Stage;
 
@@ -21,11 +22,11 @@ AABStageGimmik::AABStageGimmik()
 	}
 
 	StageTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("StageTrigger"));
-	StageTrigger->SetBoxExtent(FVector(775.0f, 775.0f, 300.0f));
+	StageTrigger->SetBoxExtent(FVector(775.0, 775.0f, 300.0f));
 	StageTrigger->SetupAttachment(Stage);
 	StageTrigger->SetRelativeLocation(FVector(0.0f, 0.0f, 250.0f));
 	StageTrigger->SetCollisionProfileName(CPROFILE_ABTRIGGER);
-	StageTrigger->OnComponentBeginOverlap.AddDynamic(this, &AABStageGimmik::OnStageTriggerBeginOverlap);
+	StageTrigger->OnComponentBeginOverlap.AddDynamic(this, &AABStageGimmick::OnStageTriggerBeginOverlap);
 
 	// Gate Section
 	static FName GateSockets[] = { TEXT("+XGate"), TEXT("-XGate"), TEXT("+YGate"), TEXT("-YGate") };
@@ -45,19 +46,18 @@ AABStageGimmik::AABStageGimmik()
 		GateTrigger->SetupAttachment(Stage, GateSocket);
 		GateTrigger->SetRelativeLocation(FVector(70.0f, 0.0f, 250.0f));
 		GateTrigger->SetCollisionProfileName(CPROFILE_ABTRIGGER);
-		GateTrigger->OnComponentBeginOverlap.AddDynamic(this, &AABStageGimmik::OnGateTriggerBeginOverlap);
-		GateTrigger->ComponentTags.Add(GateSocket);	// 캐릭터가 동서남북 게이트 중 어디 들어갔는지 식별하기 위한 태그값
-		
+		GateTrigger->OnComponentBeginOverlap.AddDynamic(this, &AABStageGimmick::OnGateTriggerBeginOverlap);
+		GateTrigger->ComponentTags.Add(GateSocket);
+
 		GateTriggers.Add(GateTrigger);
-		
 	}
 
 	// State Section
 	CurrentState = EStageState::READY;
-	StateChangeActions.Add(EStageState::READY, FStageChangedDelgateWrapper(FOnStageChangedDelegate::CreateUObject(this, &AABStageGimmik::SetReady)));
-	StateChangeActions.Add(EStageState::FIGHT, FStageChangedDelgateWrapper(FOnStageChangedDelegate::CreateUObject(this, &AABStageGimmik::SetFight)));
-	StateChangeActions.Add(EStageState::REWARD, FStageChangedDelgateWrapper(FOnStageChangedDelegate::CreateUObject(this, &AABStageGimmik::SetChooseReward)));
-	StateChangeActions.Add(EStageState::NEXT, FStageChangedDelgateWrapper(FOnStageChangedDelegate::CreateUObject(this, &AABStageGimmik::SetChooseNext)));
+	StateChangeActions.Add(EStageState::READY, FStageChangedDelegateWrapper(FOnStageChangedDelegate::CreateUObject(this, &AABStageGimmick::SetReady)));
+	StateChangeActions.Add(EStageState::FIGHT, FStageChangedDelegateWrapper(FOnStageChangedDelegate::CreateUObject(this, &AABStageGimmick::SetFight)));
+	StateChangeActions.Add(EStageState::REWARD, FStageChangedDelegateWrapper(FOnStageChangedDelegate::CreateUObject(this, &AABStageGimmick::SetChooseReward)));
+	StateChangeActions.Add(EStageState::NEXT, FStageChangedDelegateWrapper(FOnStageChangedDelegate::CreateUObject(this, &AABStageGimmick::SetChooseNext)));
 
 	// Fight Section
 	OpponentSpawnTime = 2.0f;
@@ -72,46 +72,44 @@ AABStageGimmik::AABStageGimmik()
 	}
 }
 
-void AABStageGimmik::OnConstruction(const FTransform& Transform)
+void AABStageGimmick::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-	
+
 	SetState(CurrentState);
 }
 
-void AABStageGimmik::OnStageTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult)
+void AABStageGimmick::OnStageTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	SetState(EStageState::FIGHT);
 }
 
-void AABStageGimmik::OnGateTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult)
+void AABStageGimmick::OnGateTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	check(OverlappedComponent->ComponentTags.Num() == 1);	// 태그 설정 확인 assert
+	check(OverlappedComponent->ComponentTags.Num() == 1);
 	FName ComponentTag = OverlappedComponent->ComponentTags[0];
-	FName SocketName = FName(*ComponentTag.ToString().Left(2));	// (+X, -X, +Y, -Y) 파싱
-	check(Stage->DoesSocketExist(SocketName));	// 소켓 유무 체크
+	FName SocketName = FName(*ComponentTag.ToString().Left(2));
+	check(Stage->DoesSocketExist(SocketName));
 
 	FVector NewLocation = Stage->GetSocketLocation(SocketName);
-	// 해당 위치에 이미 스테이지가 있나 검사
 	TArray<FOverlapResult> OverlapResults;
-	FCollisionQueryParams CollisionQueryParam(SCENE_QUERY_STAT(GateTrigger), false, this);	// 나는(현재 스테이지) 콜리젼 체크에서 제외
+	FCollisionQueryParams CollisionQueryParam(SCENE_QUERY_STAT(GateTrigger), false, this);
 	bool bResult = GetWorld()->OverlapMultiByObjectType(
 		OverlapResults,
 		NewLocation,
 		FQuat::Identity,
 		FCollisionObjectQueryParams::InitType::AllStaticObjects,
-		FCollisionShape::MakeSphere(775.0f),	// 해당 위치에 구 생성
+		FCollisionShape::MakeSphere(775.0f),
 		CollisionQueryParam
 	);
 
-	// 아무 것도 없으면 스테이지(기믹 액터) 소환
-	if (bResult == false)
+	if (!bResult)
 	{
-		GetWorld()->SpawnActor<AABStageGimmik>(NewLocation, FRotator::ZeroRotator);
+		GetWorld()->SpawnActor<AABStageGimmick>(NewLocation, FRotator::ZeroRotator);
 	}
 }
 
-void AABStageGimmik::OpenAllGates()
+void AABStageGimmick::OpenAllGates()
 {
 	for (auto Gate : Gates)
 	{
@@ -119,7 +117,7 @@ void AABStageGimmik::OpenAllGates()
 	}
 }
 
-void AABStageGimmik::CloseAllGates()
+void AABStageGimmick::CloseAllGates()
 {
 	for (auto Gate : Gates)
 	{
@@ -127,29 +125,28 @@ void AABStageGimmik::CloseAllGates()
 	}
 }
 
-void AABStageGimmik::SetState(EStageState InNewState)
+void AABStageGimmick::SetState(EStageState InNewState)
 {
 	CurrentState = InNewState;
-	if (StateChangeActions.Contains(CurrentState))
+
+	if (StateChangeActions.Contains(InNewState))
 	{
 		StateChangeActions[CurrentState].StageDelegate.ExecuteIfBound();
 	}
 }
 
-void AABStageGimmik::SetReady()
+void AABStageGimmick::SetReady()
 {
-	// 방 입장 감지 트리거 활성화
 	StageTrigger->SetCollisionProfileName(CPROFILE_ABTRIGGER);
 	for (auto GateTrigger : GateTriggers)
 	{
-		// 문은 콜리전 활성화 안 함
 		GateTrigger->SetCollisionProfileName(TEXT("NoCollision"));
 	}
 
 	OpenAllGates();
 }
 
-void AABStageGimmik::SetFight()
+void AABStageGimmick::SetFight()
 {
 	StageTrigger->SetCollisionProfileName(TEXT("NoCollision"));
 	for (auto GateTrigger : GateTriggers)
@@ -159,10 +156,10 @@ void AABStageGimmik::SetFight()
 
 	CloseAllGates();
 
-	GetWorld()->GetTimerManager().SetTimer(OpponentTimerHandle, this, &AABStageGimmik::OnOpponentSpawn, OpponentSpawnTime, false);
+	GetWorld()->GetTimerManager().SetTimer(OpponentTimerHandle, this, &AABStageGimmick::OnOpponentSpawn, OpponentSpawnTime, false);
 }
 
-void AABStageGimmik::SetChooseReward()
+void AABStageGimmick::SetChooseReward()
 {
 	StageTrigger->SetCollisionProfileName(TEXT("NoCollision"));
 	for (auto GateTrigger : GateTriggers)
@@ -174,47 +171,43 @@ void AABStageGimmik::SetChooseReward()
 	SpawnRewardBoxes();
 }
 
-void AABStageGimmik::SetChooseNext()
+void AABStageGimmick::SetChooseNext()
 {
-	// 방 입장 감지 트리거 활성화
 	StageTrigger->SetCollisionProfileName(TEXT("NoCollision"));
 	for (auto GateTrigger : GateTriggers)
 	{
-		// 문은 콜리전 활성화 안 함
 		GateTrigger->SetCollisionProfileName(CPROFILE_ABTRIGGER);
 	}
 
 	OpenAllGates();
 }
 
-void AABStageGimmik::OnOpponentDestroyed(AActor* DestroyedActor)
+void AABStageGimmick::OnOpponentDestroyed(AActor* DestroyedActor)
 {
 	SetState(EStageState::REWARD);
 }
 
-void AABStageGimmik::OnOpponentSpawn()
+void AABStageGimmick::OnOpponentSpawn()
 {
 	const FVector SpawnLocation = GetActorLocation() + FVector::UpVector * 88.0f;
 	AActor* OpponentActor = GetWorld()->SpawnActor(OpponentClass, &SpawnLocation, &FRotator::ZeroRotator);
 	AABCharacterNonPlayer* ABOpponentCharacter = Cast<AABCharacterNonPlayer>(OpponentActor);
 	if (ABOpponentCharacter)
 	{
-		ABOpponentCharacter->OnDestroyed.AddDynamic(this, &AABStageGimmik::OnOpponentDestroyed);
+		ABOpponentCharacter->OnDestroyed.AddDynamic(this, &AABStageGimmick::OnOpponentDestroyed);
 	}
 }
 
-void AABStageGimmik::OnRewardTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult)
+void AABStageGimmick::OnRewardTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	for (const auto& RewardBox : RewardBoxes)
 	{
-		// 약 참조라 nullptr일 수 있으니 체크
 		if (RewardBox.IsValid())
 		{
 			AABItemBox* ValidItemBox = RewardBox.Get();
 			AActor* OverlappedBox = OverlappedComponent->GetOwner();
 			if (OverlappedBox != ValidItemBox)
 			{
-				// 보상 하나만 선택
 				ValidItemBox->Destroy();
 			}
 		}
@@ -223,7 +216,7 @@ void AABStageGimmik::OnRewardTriggerBeginOverlap(UPrimitiveComponent* Overlapped
 	SetState(EStageState::NEXT);
 }
 
-void AABStageGimmik::SpawnRewardBoxes()
+void AABStageGimmick::SpawnRewardBoxes()
 {
 	for (const auto& RewardBoxLocation : RewardBoxLocations)
 	{
@@ -233,7 +226,7 @@ void AABStageGimmik::SpawnRewardBoxes()
 		if (RewardBoxActor)
 		{
 			RewardBoxActor->Tags.Add(RewardBoxLocation.Key);
-			RewardBoxActor->GetTrigger()->OnComponentBeginOverlap.AddDynamic(this, &AABStageGimmik::OnRewardTriggerBeginOverlap);
+			RewardBoxActor->GetTrigger()->OnComponentBeginOverlap.AddDynamic(this, &AABStageGimmick::OnRewardTriggerBeginOverlap);
 			RewardBoxes.Add(RewardBoxActor);
 		}
 	}

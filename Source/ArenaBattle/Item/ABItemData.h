@@ -21,7 +21,7 @@ UCLASS()
 class ARENABATTLE_API UABItemData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
-
+	
 public:
 	FPrimaryAssetId GetPrimaryAssetId() const override
 	{

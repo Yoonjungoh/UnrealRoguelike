@@ -15,7 +15,7 @@ public:
 	// Sets default values for this actor's properties
 	AABItemBox();
 
-	FORCEINLINE class UBoxComponent* GetTrigger() { return  Trigger; }
+	FORCEINLINE class UBoxComponent* GetTrigger() { return Trigger; }
 
 protected:
 	virtual void PostInitializeComponents() override;

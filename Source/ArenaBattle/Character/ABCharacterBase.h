@@ -22,10 +22,9 @@ DECLARE_DELEGATE_OneParam(FOnTakeItemDelegate, class UABItemData* /*InItemData*/
 USTRUCT(BlueprintType)
 struct FTakeItemDelegateWrapper
 {
-	GENERATED_BODY()  // USTRUCT 돌아가게 하려면 필요
+	GENERATED_BODY()
 	FTakeItemDelegateWrapper() {}
-	// InItemDelegate을 ItemDelegate에 복사
-	FTakeItemDelegateWrapper(const FOnTakeItemDelegate& InItemDelegate) : ItemDelegate(InItemDelegate) {}
+	FTakeItemDelegateWrapper(const FOnTakeItemDelegate& InItemDelegate) : ItemDelegate(InItemDelegate) {}	
 	FOnTakeItemDelegate ItemDelegate;
 };
 

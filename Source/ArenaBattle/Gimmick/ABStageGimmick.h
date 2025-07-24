@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ABStageGimmik.generated.h"
+#include "ABStageGimmick.generated.h"
 
 DECLARE_DELEGATE(FOnStageChangedDelegate);
 USTRUCT(BlueprintType)
-struct FStageChangedDelgateWrapper
+struct FStageChangedDelegateWrapper
 {
 	GENERATED_BODY()
-	FStageChangedDelgateWrapper() { }
-	FStageChangedDelgateWrapper(const FOnStageChangedDelegate& InDelegate) : StageDelegate(InDelegate) { }
+	FStageChangedDelegateWrapper() { }
+	FStageChangedDelegateWrapper(const FOnStageChangedDelegate& InDelegate) : StageDelegate(InDelegate) {}
 	FOnStageChangedDelegate StageDelegate;
 };
 
@@ -26,28 +26,28 @@ enum class EStageState : uint8
 };
 
 UCLASS()
-class ARENABATTLE_API AABStageGimmik : public AActor
+class ARENABATTLE_API AABStageGimmick : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AABStageGimmik();
+	AABStageGimmick();
 
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 // Stage Section
 protected:
-	UPROPERTY(VisibleAnywhere, Category=Stage, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = Stage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UStaticMeshComponent> Stage;
 
 	UPROPERTY(VisibleAnywhere, Category = Stage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UBoxComponent> StageTrigger;
 
 	UFUNCTION()
-	void OnStageTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult);
-	
+	void OnStageTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 // Gate Section
 protected:
 	UPROPERTY(VisibleAnywhere, Category = Gate, Meta = (AllowPrivateAccess = "true"))
@@ -57,7 +57,7 @@ protected:
 	TArray<TObjectPtr<class UBoxComponent>> GateTriggers;
 
 	UFUNCTION()
-	void OnGateTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult);
+	void OnGateTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	void OpenAllGates();
 	void CloseAllGates();
@@ -69,10 +69,8 @@ protected:
 
 	void SetState(EStageState InNewState);
 
-	// 복사 불가능한 타입이라 맵 안에 단독 선언이 안 됨
-	// 값 기반이라 따로 수명 관리가 필요 없지만, 원한다면 공유 포인터나 참조로 넘겨도 된다.
 	UPROPERTY()
-	TMap<EStageState, FStageChangedDelgateWrapper> StateChangeActions;
+	TMap<EStageState, FStageChangedDelegateWrapper> StateChangeActions;
 
 	void SetReady();
 	void SetFight();
@@ -82,8 +80,8 @@ protected:
 // Fight Section
 protected:
 	UPROPERTY(EditAnywhere, Category = Fight, Meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class AABCharacterNonPlayer> OpponentClass;	// 상속 받은 클래스만 넣을 수 있게 해줌
-	
+	TSubclassOf<class AABCharacterNonPlayer> OpponentClass;
+
 	UPROPERTY(EditAnywhere, Category = Fight, Meta = (AllowPrivateAccess = "true"))
 	float OpponentSpawnTime;
 
@@ -104,7 +102,7 @@ protected:
 	TMap<FName, FVector> RewardBoxLocations;
 
 	UFUNCTION()
-	void OnRewardTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult);
+	void OnRewardTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	void SpawnRewardBoxes();
 };

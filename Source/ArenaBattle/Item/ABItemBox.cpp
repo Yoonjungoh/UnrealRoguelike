@@ -43,7 +43,6 @@ AABItemBox::AABItemBox()
 
 void AABItemBox::PostInitializeComponents()
 {
-	// 액터의 초기화가 완료되는 마지막 시점에 호출되는 함수
 	Super::PostInitializeComponents();
 
 	UAssetManager& Manager = UAssetManager::Get();
