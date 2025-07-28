@@ -44,7 +44,7 @@ float UABCharacterStatComponent::ApplyDamage(float InDamage)
 
 void UABCharacterStatComponent::SetHp(float NewHp)
 {
-	CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, BaseStat.MaxHp);
+	CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, GetTotalStat().MaxHp);
 	
 	OnHpChanged.Broadcast(CurrentHp);
 }
