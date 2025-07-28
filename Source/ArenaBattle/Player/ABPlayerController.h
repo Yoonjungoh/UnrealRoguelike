@@ -13,8 +13,19 @@ UCLASS()
 class ARENABATTLE_API AABPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+public:
+	AABPlayerController();
 	
 protected:
 	virtual void BeginPlay() override;
 	
+// HUD Section
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
+	TSubclassOf<class UABHUDWidget> ABHUDWidgetClass;	// 원본 클래스
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = HUD)
+	TObjectPtr<class UABHUDWidget> ABHUDWidget;	// 실제 사용할 포인터
+
 };
