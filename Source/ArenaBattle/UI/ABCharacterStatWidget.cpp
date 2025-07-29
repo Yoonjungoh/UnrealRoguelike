@@ -11,16 +11,16 @@ void UABCharacterStatWidget::NativeConstruct()
 	for (TFieldIterator<FNumericProperty> PropIt(FABCharacterStat::StaticStruct()); PropIt; ++PropIt)
 	{
 		const FName PropKey(PropIt->GetName());
-		const FName TextBaseControllBlockName = *FString::Printf(TEXT("Txt%sBase"), *PropIt->GetName());
-		const FName TextModifierControllBlockName = *FString::Printf(TEXT("Txt%sModifier"), *PropIt->GetName());
-		
-		UTextBlock* BaseTextBlock = Cast<UTextBlock>(GetWidgetFromName(TextBaseControllBlockName));
+		const FName TextBaseControlName = *FString::Printf(TEXT("Txt%sBase"), *PropIt->GetName());
+		const FName TextModifierControlName = *FString::Printf(TEXT("Txt%sModifier"), *PropIt->GetName());
+
+		UTextBlock* BaseTextBlock = Cast<UTextBlock>(GetWidgetFromName(TextBaseControlName));
 		if (BaseTextBlock)
 		{
 			BaseLookup.Add(PropKey, BaseTextBlock);
 		}
 
-		UTextBlock* ModifierTextBlock = Cast<UTextBlock>(GetWidgetFromName(TextModifierControllBlockName));
+		UTextBlock* ModifierTextBlock = Cast<UTextBlock>(GetWidgetFromName(TextModifierControlName));
 		if (ModifierTextBlock)
 		{
 			ModifierLookup.Add(PropKey, ModifierTextBlock);
@@ -36,7 +36,6 @@ void UABCharacterStatWidget::UpdateStat(const FABCharacterStat& BaseStat, const 
 
 		float BaseData = 0.0f;
 		PropIt->GetValue_InContainer((const void*)&BaseStat, &BaseData);
-		
 		float ModifierData = 0.0f;
 		PropIt->GetValue_InContainer((const void*)&ModifierStat, &ModifierData);
 
@@ -46,10 +45,11 @@ void UABCharacterStatWidget::UpdateStat(const FABCharacterStat& BaseStat, const 
 			(*BaseTextBlockPtr)->SetText(FText::FromString(FString::SanitizeFloat(BaseData)));
 		}
 
-		UTextBlock** ModifierLookupPtr = ModifierLookup.Find(PropKey);
-		if (ModifierLookupPtr)
+		UTextBlock** ModifierTextBlockPtr = ModifierLookup.Find(PropKey);
+		if (ModifierTextBlockPtr)
 		{
-			(*ModifierLookupPtr)->SetText(FText::FromString(FString::SanitizeFloat(ModifierData)));
+			(*ModifierTextBlockPtr)->SetText(FText::FromString(FString::SanitizeFloat(ModifierData)));
 		}
 	}
 }
+

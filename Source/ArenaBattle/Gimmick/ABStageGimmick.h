@@ -36,7 +36,7 @@ public:
 
 public:
 	FORCEINLINE int32 GetStageNum() const { return CurrentStageNum; }
-	FORCEINLINE void SetStageNum(int32 NewStageNum) {  CurrentStageNum = NewStageNum; }
+	FORCEINLINE void SetStageNum(int32 NewStageNum) { CurrentStageNum = NewStageNum; }
 
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;

@@ -17,8 +17,8 @@ class ARENABATTLE_API UABCharacterStatWidget : public UUserWidget
 
 protected:
 	virtual void NativeConstruct() override;
-
-public:	
+	
+public:
 	void UpdateStat(const FABCharacterStat& BaseStat, const FABCharacterStat& ModifierStat);
 
 private:

@@ -10,7 +10,7 @@ UABCharacterStatComponent::UABCharacterStatComponent()
 	CurrentLevel = 1;
 	AttackRadius = 50.0f;
 
-	bWantsInitializeComponent = true;	// 이걸 설정해줘야 InitializeComponent가 실행됨
+	bWantsInitializeComponent = true;
 }
 
 void UABCharacterStatComponent::InitializeComponent()
@@ -24,10 +24,10 @@ void UABCharacterStatComponent::InitializeComponent()
 void UABCharacterStatComponent::SetLevelStat(int32 InNewLevel)
 {
 	CurrentLevel = FMath::Clamp(InNewLevel, 1, UABGameSingleton::Get().CharacterMaxLevel);
-	SetBaseStat(UABGameSingleton::Get().GetCharacterStatTable(InNewLevel));
+	SetBaseStat(UABGameSingleton::Get().GetCharacterStat(CurrentLevel));
 	check(BaseStat.MaxHp > 0.0f);
 }
- 
+
 float UABCharacterStatComponent::ApplyDamage(float InDamage)
 {
 	const float PrevHp = CurrentHp;
@@ -44,7 +44,7 @@ float UABCharacterStatComponent::ApplyDamage(float InDamage)
 
 void UABCharacterStatComponent::SetHp(float NewHp)
 {
-	CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, GetTotalStat().MaxHp);
+	CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, BaseStat.MaxHp);
 	
 	OnHpChanged.Broadcast(CurrentHp);
 }

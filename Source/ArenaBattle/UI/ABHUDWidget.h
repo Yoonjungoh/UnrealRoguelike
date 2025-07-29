@@ -22,7 +22,6 @@ public:
 	void UpdateStat(const FABCharacterStat& BaseStat, const FABCharacterStat& ModifierStat);
 	void UpdateHpBar(float NewCurrentHp);
 
-
 protected:
 	virtual void NativeConstruct() override;
 
@@ -32,5 +31,4 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<class UABCharacterStatWidget> CharacterStat;
-
 };

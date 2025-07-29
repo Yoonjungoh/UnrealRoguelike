@@ -8,11 +8,11 @@
 
 UABHUDWidget::UABHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	
 }
 
 void UABHUDWidget::UpdateStat(const FABCharacterStat& BaseStat, const FABCharacterStat& ModifierStat)
 {
+	FABCharacterStat TotalStat = BaseStat + ModifierStat;
 	HpBar->UpdateStat(BaseStat, ModifierStat);
 	CharacterStat->UpdateStat(BaseStat, ModifierStat);
 }
@@ -37,4 +37,5 @@ void UABHUDWidget::NativeConstruct()
 	{
 		HUDPawn->SetupHUDWidget(this);
 	}
+
 }

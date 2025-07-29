@@ -34,8 +34,8 @@ protected:
 	TObjectPtr<class UTextBlock> HpStat;
 
 	UPROPERTY()
-	float MaxHp;
+	float CurrentHp;
 
 	UPROPERTY()
-	float CurrentHp;
+	float MaxHp;
 };

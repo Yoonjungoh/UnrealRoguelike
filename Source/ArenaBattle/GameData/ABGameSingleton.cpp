@@ -15,7 +15,6 @@ UABGameSingleton::UABGameSingleton()
 
 		TArray<uint8*> ValueArray;
 		DataTable->GetRowMap().GenerateValueArray(ValueArray);
-		// uid를 키값으로 해도 되지만 현재 레벨 순서대로 가기 때문에 배열에 저장해주는 게 더 유리함
 		Algo::Transform(ValueArray, CharacterStatTable,
 			[](uint8* Value)
 			{
@@ -30,13 +29,12 @@ UABGameSingleton::UABGameSingleton()
 
 UABGameSingleton& UABGameSingleton::Get()
 {
-	UABGameSingleton* Singleton = CastChecked<UABGameSingleton>(GEngine->GameSingleton);
+	UABGameSingleton* Singleton = CastChecked< UABGameSingleton>(GEngine->GameSingleton);
 	if (Singleton)
 	{
 		return *Singleton;
 	}
-	
-	// 여기까지 올리는 없지만 혹시 모르니 로그 찍기
+
 	UE_LOG(LogABGameSingleton, Error, TEXT("Invalid Game Singleton"));
 	return *NewObject<UABGameSingleton>();
 }

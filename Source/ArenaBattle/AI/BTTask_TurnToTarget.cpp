@@ -7,9 +7,9 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Interface/ABCharacterAIInterface.h"
 
-UBTTask_TurnToTarget::UBTTask_TurnToTarget() 
+UBTTask_TurnToTarget::UBTTask_TurnToTarget()
 {
-	NodeName = TEXT("TurnToTarget");
+	NodeName = TEXT("Turn");
 }
 
 EBTNodeResult::Type UBTTask_TurnToTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -17,19 +17,19 @@ EBTNodeResult::Type UBTTask_TurnToTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	APawn* ControllingPawn = Cast<APawn>(OwnerComp.GetAIOwner()->GetPawn());
-	if (ControllingPawn == nullptr)
+	if (nullptr == ControllingPawn)
 	{
 		return EBTNodeResult::Failed;
 	}
 
 	APawn* TargetPawn = Cast<APawn>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BBKEY_TARGET));
-	if (TargetPawn == nullptr)
+	if (nullptr == TargetPawn)
 	{
 		return EBTNodeResult::Failed;
 	}
 
 	IABCharacterAIInterface* AIPawn = Cast<IABCharacterAIInterface>(ControllingPawn);
-	if (AIPawn == nullptr)
+	if (nullptr == AIPawn)
 	{
 		return EBTNodeResult::Failed;
 	}
@@ -42,3 +42,5 @@ EBTNodeResult::Type UBTTask_TurnToTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 
 	return EBTNodeResult::Succeeded;
 }
+
+

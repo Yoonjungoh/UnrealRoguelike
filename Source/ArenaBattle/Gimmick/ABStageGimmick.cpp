@@ -7,6 +7,9 @@
 #include "Physics/ABCollision.h"
 #include "Character/ABCharacterNonPlayer.h"
 #include "Item/ABItemBox.h"
+#include "Interface/ABGameInterface.h"
+#include "Engine/OverlapResult.h"
+#include "GameFramework/GameModeBase.h"
 
 // Sets default values
 AABStageGimmick::AABStageGimmick()
@@ -72,7 +75,7 @@ AABStageGimmick::AABStageGimmick()
 	}
 
 	// Stage Stat
-	SetStageNum(0);
+	CurrentStageNum = 0;
 }
 
 void AABStageGimmick::OnConstruction(const FTransform& Transform)
@@ -101,7 +104,7 @@ void AABStageGimmick::OnGateTriggerBeginOverlap(UPrimitiveComponent* OverlappedC
 		OverlapResults,
 		NewLocation,
 		FQuat::Identity,
-		FCollisionObjectQueryParams::InitType::AllStaticObjects,
+		FCollisionObjectQueryParams::InitType::AllObjects,
 		FCollisionShape::MakeSphere(775.0f),
 		CollisionQueryParam
 	);
@@ -109,11 +112,11 @@ void AABStageGimmick::OnGateTriggerBeginOverlap(UPrimitiveComponent* OverlappedC
 	if (!bResult)
 	{
 		FTransform NewTransform(NewLocation);
-		AABStageGimmick* NewGimmik = GetWorld()->SpawnActorDeferred<AABStageGimmick>(AABStageGimmick::StaticClass(), NewTransform);
-		if (NewGimmik)
+		AABStageGimmick* NewGimmick = GetWorld()->SpawnActorDeferred<AABStageGimmick>(AABStageGimmick::StaticClass(), NewTransform);
+		if (NewGimmick)
 		{
-			NewGimmik->SetStageNum(GetStageNum() + 1);
-			NewGimmik->FinishSpawning(NewTransform);
+			NewGimmick->SetStageNum(CurrentStageNum + 1);
+			NewGimmick->FinishSpawning(NewTransform);
 		}
 	}
 }
@@ -193,20 +196,27 @@ void AABStageGimmick::SetChooseNext()
 
 void AABStageGimmick::OnOpponentDestroyed(AActor* DestroyedActor)
 {
+	IABGameInterface* ABGameMode = Cast<IABGameInterface>(GetWorld()->GetAuthGameMode());
+	if (ABGameMode)
+	{
+		ABGameMode->OnPlayerScoreChanged(CurrentStageNum);
+		if (ABGameMode->IsGameCleared())
+		{
+			return;
+		}
+	}
+
 	SetState(EStageState::REWARD);
 }
 
 void AABStageGimmick::OnOpponentSpawn()
 {
 	const FTransform SpawnTransform(GetActorLocation() + FVector::UpVector * 88.0f);
-	// 1. SpawnActorDeferred 호출
 	AABCharacterNonPlayer* ABOpponentCharacter = GetWorld()->SpawnActorDeferred<AABCharacterNonPlayer>(OpponentClass, SpawnTransform);
 	if (ABOpponentCharacter)
 	{
-		// 2. 초기화 로직 구현
-		ABOpponentCharacter->SetLevel(GetStageNum());
 		ABOpponentCharacter->OnDestroyed.AddDynamic(this, &AABStageGimmick::OnOpponentDestroyed);
-		// 3. FinishSpawning 호출
+		ABOpponentCharacter->SetLevel(CurrentStageNum);
 		ABOpponentCharacter->FinishSpawning(SpawnTransform);
 	}
 }
@@ -247,7 +257,7 @@ void AABStageGimmick::SpawnRewardBoxes()
 	{
 		if (RewardBox.IsValid())
 		{
-			RewardBox->FinishSpawning(RewardBox.Get()->GetActorTransform());
+			RewardBox.Get()->FinishSpawning(RewardBox.Get()->GetActorTransform());
 		}
 	}
 }

@@ -9,13 +9,13 @@
 #include "ABCharacterNonPlayer.generated.h"
 
 /**
- *
+ * 
  */
-UCLASS(config = ArenaBattle)
+UCLASS(config=ArenaBattle)
 class ARENABATTLE_API AABCharacterNonPlayer : public AABCharacterBase, public IABCharacterAIInterface
 {
 	GENERATED_BODY()
-
+	
 public:
 	AABCharacterNonPlayer();
 
@@ -28,11 +28,11 @@ protected:
 
 	UPROPERTY(config)
 	TArray<FSoftObjectPath> NPCMeshes;
-
-	TSharedPtr<FStreamableHandle> NPCMeshHandle; 
+	
+	TSharedPtr<FStreamableHandle> NPCMeshHandle;
 
 // AI Section
-public:
+protected:
 	virtual float GetAIPatrolRadius() override;
 	virtual float GetAIDetectRange() override;
 	virtual float GetAIAttackRange() override;

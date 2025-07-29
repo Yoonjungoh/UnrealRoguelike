@@ -8,6 +8,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Physics/ABCollision.h"
 #include "DrawDebugHelpers.h"
+#include "Engine/OverlapResult.h"
 
 UBTService_Detect::UBTService_Detect()
 {
@@ -20,24 +21,24 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
-	if (ControllingPawn == nullptr)
+	if (nullptr == ControllingPawn)
 	{
 		return;
 	}
 
 	FVector Center = ControllingPawn->GetActorLocation();
 	UWorld* World = ControllingPawn->GetWorld();
-	if (World == nullptr)
+	if (nullptr == World)
 	{
 		return;
 	}
 
 	IABCharacterAIInterface* AIPawn = Cast<IABCharacterAIInterface>(ControllingPawn);
-	if (AIPawn == nullptr)
+	if (nullptr == AIPawn)
 	{
 		return;
 	}
-	
+
 	float DetectRadius = AIPawn->GetAIDetectRange();
 
 	TArray<FOverlapResult> OverlapResults;
@@ -64,13 +65,12 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 				DrawDebugPoint(World, Pawn->GetActorLocation(), 10.0f, FColor::Green, false, 0.2f);
 				DrawDebugLine(World, ControllingPawn->GetActorLocation(), Pawn->GetActorLocation(), FColor::Green, false, 0.27f);
 				return;
-
-				// 원하면 여기서 조건 늘리기 (지금은 하나만 찾고 끝냄)
 			}
 		}
 	}
 
 	OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_TARGET, nullptr);
 	DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Red, false, 0.2f);
-
 }
+
+

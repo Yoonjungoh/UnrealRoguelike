@@ -13,11 +13,10 @@ UCLASS()
 class ARENABATTLE_API UBTDecorator_AttackInRange : public UBTDecorator
 {
 	GENERATED_BODY()
+	
 public:
 	UBTDecorator_AttackInRange();
 
 protected:
-	// 노드 조건 평가하는 함수
-	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const;
-
+	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
 };

@@ -14,7 +14,7 @@ UCLASS()
 class ARENABATTLE_API UABScrollItemData : public UABItemData
 {
 	GENERATED_BODY()
-
+	
 public:
 	UABScrollItemData();
 
@@ -23,6 +23,7 @@ public:
 		return FPrimaryAssetId("ABItemData", GetFName());
 	}
 
+public:
 	UPROPERTY(EditAnywhere, Category = Stat)
 	FABCharacterStat BaseStat;
 };

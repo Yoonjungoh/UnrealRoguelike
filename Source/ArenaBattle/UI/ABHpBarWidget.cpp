@@ -30,7 +30,7 @@ void UABHpBarWidget::NativeConstruct()
 
 void UABHpBarWidget::UpdateStat(const FABCharacterStat& BaseStat, const FABCharacterStat& ModifierStat)
 {
-	MaxHp = (BaseStat.MaxHp + ModifierStat.MaxHp);
+	MaxHp = (BaseStat + ModifierStat).MaxHp;
 
 	if (HpProgressBar)
 	{
@@ -50,7 +50,7 @@ void UABHpBarWidget::UpdateHpBar(float NewCurrentHp)
 	ensure(MaxHp > 0.0f);
 	if (HpProgressBar)
 	{
-		HpProgressBar->SetPercent(NewCurrentHp / MaxHp);
+		HpProgressBar->SetPercent(CurrentHp / MaxHp);
 	}
 
 	if (HpStat)

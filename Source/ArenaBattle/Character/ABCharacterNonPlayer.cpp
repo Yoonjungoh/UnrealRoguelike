@@ -8,7 +8,7 @@
 
 AABCharacterNonPlayer::AABCharacterNonPlayer()
 {
-	GetMesh()->SetHiddenInGame(true);	// 메시를 우선 숨기고 로딩 완료되면 보이게 할 예정
+	GetMesh()->SetHiddenInGame(true);
 
 	AIControllerClass = AABAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -21,7 +21,6 @@ void AABCharacterNonPlayer::PostInitializeComponents()
 	ensure(NPCMeshes.Num() > 0);
 	int32 RandIndex = FMath::RandRange(0, NPCMeshes.Num() - 1);
 	NPCMeshHandle = UAssetManager::Get().GetStreamableManager().RequestAsyncLoad(NPCMeshes[RandIndex], FStreamableDelegate::CreateUObject(this, &AABCharacterNonPlayer::NPCMeshLoadCompleted));
-	
 }
 
 void AABCharacterNonPlayer::SetDead()
@@ -51,7 +50,7 @@ void AABCharacterNonPlayer::NPCMeshLoadCompleted()
 		if (NPCMesh)
 		{
 			GetMesh()->SetSkeletalMesh(NPCMesh);
-			GetMesh()->SetHiddenInGame(false);	// 로딩 완료됐으니 보이게 해도 됨
+			GetMesh()->SetHiddenInGame(false);
 		}
 	}
 

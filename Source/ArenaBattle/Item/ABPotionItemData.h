@@ -13,7 +13,7 @@ UCLASS()
 class ARENABATTLE_API UABPotionItemData : public UABItemData
 {
 	GENERATED_BODY()
-
+	
 public:
 	UABPotionItemData();
 

@@ -179,7 +179,6 @@ void AABCharacterBase::ComboActionEnd(UAnimMontage* TargetMontage, bool IsProper
 
 void AABCharacterBase::NotifyComboActionEnd()
 {
-
 }
 
 void AABCharacterBase::SetComboCheckTimer()
@@ -327,8 +326,6 @@ void AABCharacterBase::SetLevel(int32 InNewLevel)
 
 void AABCharacterBase::ApplyStat(const FABCharacterStat& BaseStat, const FABCharacterStat& ModifierStat)
 {
-	float TotalMovementSpeed = (BaseStat + ModifierStat).MovementSpeed;
-	GetCharacterMovement()->MaxWalkSpeed = TotalMovementSpeed;
+	float MovementSpeed = (BaseStat + ModifierStat).MovementSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 }
-
-
