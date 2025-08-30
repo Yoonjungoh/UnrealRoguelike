@@ -3,6 +3,7 @@
 #include "Game/LoginGameMode.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/Button.h"
 #include "Engine/Engine.h"
 
 namespace
@@ -11,6 +12,8 @@ namespace
     // constexpr: 컴파일 타임에 값이 결정됨
     // const: 런타임에 변경 불가
     constexpr const TCHAR* LoginPanelPath = TEXT("/Game/ArenaBattle/UI/WBP_LoginPanel.WBP_LoginPanel_C");
+    constexpr const TCHAR* ButtonName = TEXT("Button_GoToIngame");
+    constexpr const TCHAR* TargetLevelName = TEXT("Ingame");
 }
 
 ALoginGameMode::ALoginGameMode()
@@ -61,6 +64,7 @@ void ALoginGameMode::CreateLoginPanel()
     // 성공적으로 생성된 경우에만 초기화 진행
     LoginPanelInstance->AddToViewport();
     SetupPlayerInput(PlayerController);
+    BindGoToIngameButton();
 
     UE_LOG(LogTemp, Log, TEXT("LoginPanel created and initialized successfully"));
 }
@@ -77,4 +81,30 @@ void ALoginGameMode::SetupPlayerInput(APlayerController* PlayerController) const
 
     const FInputModeUIOnly InputMode;
     PlayerController->SetInputMode(InputMode);
+}
+
+void ALoginGameMode::BindGoToIngameButton()
+{
+    // Item 28: 예외에 안전한 코드를 작성하라
+    if (IsLoginPanelValid() == false)
+    {
+        UE_LOG(LogTemp, Error, TEXT("LoginPanelInstance is null"));
+        return;
+    }
+
+    UButton* const GoToIngameButton = Cast<UButton>(LoginPanelInstance->GetWidgetFromName(ButtonName));
+    if (GoToIngameButton)
+    {
+        GoToIngameButton->OnClicked.AddDynamic(this, &ALoginGameMode::OnGoToIngameButtonClicked);
+        UE_LOG(LogTemp, Log, TEXT("Button binding successful"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Button '%s' not found in LoginPanel"), ButtonName);
+    }
+}
+
+void ALoginGameMode::OnGoToIngameButtonClicked()
+{
+    UGameplayStatics::OpenLevel(this, FName(TargetLevelName));
 }

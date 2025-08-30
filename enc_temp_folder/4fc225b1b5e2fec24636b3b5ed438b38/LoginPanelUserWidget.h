@@ -18,8 +18,8 @@ public:
     virtual void NativeConstruct() override;
 
 protected:
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<class UButton> Button_GoToIngame;
+    UPROPERTY()
+    class UButton* Button_GoToIngame;
 
 private:
     UFUNCTION()
