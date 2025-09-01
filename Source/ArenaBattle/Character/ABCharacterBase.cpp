@@ -174,6 +174,10 @@ void AABCharacterBase::ComboActionEnd(UAnimMontage* TargetMontage, bool IsProper
 	CurrentCombo = 0;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
+	FABCharacterStat ComboStat = Stat->GetComboStat();
+	ComboStat.Attack += GetComboAttackPower();
+	Stat->SetComboStat(ComboStat);
+
 	NotifyComboActionEnd();
 }
 
@@ -202,11 +206,24 @@ void AABCharacterBase::ComboCheck()
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 		CurrentCombo = FMath::Clamp(CurrentCombo + 1, 1, ComboActionData->MaxComboCount);
+
+		// 기존 ModifierStat에 콤보 공격으로 인한 증가량만 추가시키기
+		FABCharacterStat ComboStat = Stat->GetComboStat();
+		ComboStat.Attack += GetComboAttackPower();
+		Stat->SetComboStat(ComboStat);
+		
 		FName NextSection = *FString::Printf(TEXT("%s%d"), *ComboActionData->MontageSectionNamePrefix, CurrentCombo);
 		AnimInstance->Montage_JumpToSection(NextSection, ComboActionMontage);
 		SetComboCheckTimer();
 		HasNextComboCommand = false;
 	}
+}
+
+float AABCharacterBase::GetComboAttackPower()
+{
+	// 콤보 쌓일수록 기본 공격력의 곱하기로 증가
+	float attack = (CurrentCombo * Stat->GetBaseStat().Attack * ComboAttackPowerMultiplier);
+	return attack;
 }
 
 void AABCharacterBase::AttackHitCheck()

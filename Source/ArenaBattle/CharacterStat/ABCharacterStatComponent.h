@@ -33,10 +33,12 @@ public:
 	FORCEINLINE void AddBaseStat(const FABCharacterStat& InAddBaseStat) { BaseStat = BaseStat + InAddBaseStat; OnStatChanged.Broadcast(GetBaseStat(), GetModifierStat()); }
 	FORCEINLINE void SetBaseStat(const FABCharacterStat& InBaseStat) { BaseStat = InBaseStat; OnStatChanged.Broadcast(GetBaseStat(), GetModifierStat()); }
 	FORCEINLINE void SetModifierStat(const FABCharacterStat& InModifierStat) { ModifierStat = InModifierStat; OnStatChanged.Broadcast(GetBaseStat(), GetModifierStat()); }
+	FORCEINLINE void SetComboStat(const FABCharacterStat& InComboStat) { ComboStat = InComboStat; }	// 콤보 스탯은 따로 어딘가에 UI로 반영 안 함
 
 	FORCEINLINE const FABCharacterStat& GetBaseStat() const { return BaseStat; }
 	FORCEINLINE const FABCharacterStat& GetModifierStat() const { return ModifierStat; }
-	FORCEINLINE FABCharacterStat GetTotalStat() const { return BaseStat + ModifierStat; }
+	FORCEINLINE const FABCharacterStat& GetComboStat() const { return ComboStat; }
+	FORCEINLINE FABCharacterStat GetTotalStat() const { return BaseStat + ModifierStat + ComboStat; }
 	FORCEINLINE float GetCurrentHp() const { return CurrentHp; }
 	FORCEINLINE void HealHp(float InHealAmount) { CurrentHp = FMath::Clamp(CurrentHp + InHealAmount, 0, GetTotalStat().MaxHp); OnHpChanged.Broadcast(CurrentHp); }
 	FORCEINLINE float GetAttackRadius() const { return AttackRadius; }
@@ -55,8 +57,11 @@ protected:
 	float AttackRadius;
 
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	FABCharacterStat BaseStat;
+	FABCharacterStat BaseStat;	// 기본 스탯
 
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	FABCharacterStat ModifierStat;
+	FABCharacterStat ModifierStat;	// 무기나 스크롤에 의해 영구적으로 증가한 보조 스탯
+
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	FABCharacterStat ComboStat;	// 기본 콤보 공격에 의한 증가 스탯
 };

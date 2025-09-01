@@ -62,10 +62,14 @@ protected:
 	virtual void NotifyComboActionEnd();
 	void SetComboCheckTimer();
 	void ComboCheck();
+	float GetComboAttackPower();
 
 	int32 CurrentCombo = 0;
 	FTimerHandle ComboTimerHandle;
-	bool HasNextComboCommand = false;
+	bool HasNextComboCommand = false; protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+	float ComboAttackPowerMultiplier = 0.1f;
 
 // Attack Hit Section
 protected:
