@@ -69,7 +69,7 @@ protected:
 	bool HasNextComboCommand = false; protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
-	float ComboAttackPowerMultiplier = 0.1f;
+	float ComboAttackPowerMultiplier = 0.15f;
 
 // Attack Hit Section
 protected:
