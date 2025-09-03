@@ -116,4 +116,12 @@ public:
 	int32 GetLevel();
 	void SetLevel(int32 InNewLevel);
 	void ApplyStat(const FABCharacterStat& BaseStat, const FABCharacterStat& ModifierStat);
+
+// Gold Section
+protected:
+	int32 Gold;
+
+public:
+	FORCEINLINE void SetGold(int32 InGold) { Gold = InGold; }
+	FORCEINLINE int GetGold() { return Gold; }
 };
