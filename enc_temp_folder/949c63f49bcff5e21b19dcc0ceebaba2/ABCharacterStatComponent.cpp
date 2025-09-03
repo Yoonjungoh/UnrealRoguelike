@@ -69,6 +69,6 @@ void UABCharacterStatComponent::TransferGoldToDamageCauser(AActor* DamageCauser)
 	// ¸ó½ºÅÍ°¡ ¸ó½ºÅÍ¸¦ Á×ÀÌ¸é °ñµå°¡ ½×ÀÓ - ÈÄ¿¡ ¸ÖÆ¼·Î ¹èÆ²·Î¾â °í·Á
 	KillerStatComponent->SetGold(KillerStatComponent->GetGold() + AcquiredGold);
 
-	UE_LOG(LogTemp, Warning, TEXT("Acquired Gold: %d, Current Gold: %d"), AcquiredGold, KillerStatComponent->GetGold());
+	UE_LOG(LogTemp, Warning, TEXT("È¹µæÇÑ °ñµå: %d, ÇöÀç °ñµå: %d"), AcquiredGold, KillerStatComponent->GetGold());
 }
 

@@ -259,7 +259,7 @@ float AABCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	Stat->ApplyDamage(DamageAmount);
+	Stat->ApplyDamage(DamageAmount, DamageCauser);
 
 	return DamageAmount;
 }

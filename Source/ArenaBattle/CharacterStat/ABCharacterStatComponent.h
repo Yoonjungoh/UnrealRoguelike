@@ -42,7 +42,7 @@ public:
 	FORCEINLINE float GetCurrentHp() const { return CurrentHp; }
 	FORCEINLINE void HealHp(float InHealAmount) { CurrentHp = FMath::Clamp(CurrentHp + InHealAmount, 0, GetTotalStat().MaxHp); OnHpChanged.Broadcast(CurrentHp); }
 	FORCEINLINE float GetAttackRadius() const { return AttackRadius; }
-	float ApplyDamage(float InDamage);
+	float ApplyDamage(float InDamage, AActor* DamageCauser);
 
 protected:
 	void SetHp(float NewHp);
@@ -64,4 +64,14 @@ protected:
 
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	FABCharacterStat ComboStat;	// 기본 콤보 공격에 의한 증가 스탯
+
+// Gold Section
+protected:
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
+	int32 Gold = 10;
+	void TransferGoldToDamageCauser(AActor* DamageCauser);
+
+public:
+	FORCEINLINE void SetGold(int32 InGold) { Gold = InGold; }
+	FORCEINLINE int GetGold() { return Gold; }
 };
